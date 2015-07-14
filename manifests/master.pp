@@ -37,6 +37,8 @@
 #  ['always_cache_features']    - if false (default), always try to load a feature even if a previous load failed
 #  ['serialization_format']     - defaults to undef, otherwise it sets the preferred_serialization_format param (currently only msgpack is supported)
 #  ['serialization_package']    - defaults to undef, if provided, we install this package, otherwise we fall back to the gem from 'serialization_format'
+#  ['ca_server']                - defaults to undef, otherwise is the server we use as a CA
+#  ['ca']                       - defaults to true, does this master act as a CA for puppet
 #
 # Requires:
 #
@@ -100,6 +102,8 @@ class puppet::master (
   $passenger_stat_throttle_rate = 30,
   $serialization_format         = undef,
   $serialization_package        = undef,
+  $ca_server                    = undef,
+  $ca                           = true,
 ) inherits puppet::params {
 
   anchor { 'puppet::master::begin': }
@@ -378,5 +382,16 @@ class puppet::master (
       value   => $serialization_format,
     }
   }
+  if $ca_server != undef {
+      ini_setting {'puppetmastercaserver':
+          setting => 'ca_server'
+          value   => $ca_server
+      }
+  }
+  ini_setting {'puppetmasterca':
+      setting => 'ca'
+      value   => $ca
+  }
+  
   anchor { 'puppet::master::end': }
 }
